@@ -5,18 +5,43 @@
  */
 package am.alite.ishjava2;
 
+import java.awt.Paint;
+import java.awt.Stroke;
+
 /**
  *
  * @author luka
  */
 public class Sprite  {
     
-    private int xPos;
-    private int yPos;
-    private String imgPath;
+    public int xPos;
+    public int yPos;
+    public int speed;
+    public int direction;
+    
+    public String imageName;
+    public String name;
+    
+    public boolean running;
+    public boolean visible;
+    public boolean penDown;
+    public boolean gravity;
+    
+    public Paint penColor;
+    public Stroke penStroke;
     
     public Sprite(String imgPath, int xPos, int yPos)  {
-        
+        this.xPos = xPos;
+        this.yPos = yPos;
+        this.imageName = imgPath;
     }
     
+    public Sprite getLastTouchedSprite() {
+        //TO BE IMPLEMENTED
+        return new Sprite("",0,0);
+    }
+    
+    public void playAudio(String path) {
+        
+    }
 }
