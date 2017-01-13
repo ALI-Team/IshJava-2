@@ -44,4 +44,8 @@ public class Sprite  {
     public void playAudio(String path) {
         
     }
+    
+    public void loop() {
+        //To be overwritten
+    }
 }
