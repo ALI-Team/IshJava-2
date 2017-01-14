@@ -13,10 +13,12 @@ import am.alite.ishjava2.IshGame;
  */
 public class myGame extends IshGame {
 
+    public myGame(int resX, int resY, String title) {
+        super(resX, resY, title);
+    }
+
     @Override
     public void onCreate() {
-        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-        System.out.println("start");
     }
     
 }

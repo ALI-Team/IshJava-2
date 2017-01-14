@@ -5,6 +5,7 @@
  */
 package am.alite.ishjava2;
 
+import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -12,50 +13,62 @@ import java.util.ArrayList;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.border.EmptyBorder;
 
 /**
  *
  * @author luka
  */
-public abstract class IshGame implements Runnable {
+public class IshGame implements Runnable {
     private String title;
-    private JPanel mainPanel;
+    private Scene mainPanel;
     private JFrame mainFrame;
     private Graphics globalGraphics;
+    private JButton start;
+    private JButton stop;
     
     private Thread gameThread;
     
     private ArrayList<Sprite> spriteList;
     
-    public IshGame() {
+    public boolean running;
+    
+    public IshGame(int resX, int resY, String title) {
         
-        mainFrame = new JFrame("IshGame 2");
-        mainPanel = new JPanel();
+        mainPanel = new Scene();
+        mainPanel.setBounds(0, 0, resX, resY);
+        mainPanel.setBorder(new EmptyBorder((int)0, (int)0, (int)30, (int)0));
+        mainPanel.game = this;
         
-        mainFrame.setBounds(0, 0, 1280, 720);
+        mainFrame = new JFrame(title);
+        mainFrame.setBounds(0, 0, resX, resY+30);
         mainFrame.setContentPane(mainPanel);
-        mainFrame.setVisible(true);
+        mainFrame.setResizable(false);
         
         globalGraphics = mainPanel.getGraphics();
         
-        JButton start = new JButton("Start");
+        start = new JButton("Start");
         start.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (gameThread != null) {
-                    gameThread = null;
-                    start.setText("Start");
-                }
-                
-                else {
-                    start();
-                    start.setText("Stop");
-                }
+                start();
             }
-            
+        });
+        
+        stop = new JButton("Stop");
+        stop.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                stop();
+            }
         });
         
         mainFrame.add(start);
+        mainFrame.add(stop);
+        mainFrame.setVisible(true);
+        setTitle(title);
+        
+        spriteList = new ArrayList<Sprite>();
         
         onCreate();
     }
@@ -69,22 +82,40 @@ public abstract class IshGame implements Runnable {
         this.title = title;
     }
     
+    public final ArrayList<Sprite> getSpriteList() {
+        return this.spriteList;
+    }
+    
+    public final void start() {
+        
+        gameThread = new Thread(this);
+        gameThread.start();
+        running = true;
+    }
+    
+    public final void stop() {
+        if (gameThread != null) {
+            gameThread = null;
+            running = false;
+        }
+    }
+    
     @Override
     public void run() {
         long nanosec = System.nanoTime();
         while (gameThread != null) {
             long delay = (long)1e9 / 60;
-            System.out.println("loop");
+            mainPanel.loop();
+            
+            for (Sprite sprite : spriteList) {
+                sprite.loop();
+            }
+            
             while (System.nanoTime() < nanosec + delay) {
                 Thread.yield();
             }
             nanosec = System.nanoTime();
         }
-    }
-    
-    public final void start() {
-        gameThread = new Thread(this);
-        gameThread.start();
     }
     
     public final void addSpriteToScene(Sprite sprite) throws Exception {
@@ -94,6 +125,8 @@ public abstract class IshGame implements Runnable {
                 throw new Exception("Another object with the same name is already on the stage!");
             }
         }
+        
+        sprite.game = this;
         
         spriteList.add(sprite);
     }
@@ -109,5 +142,8 @@ public abstract class IshGame implements Runnable {
         return null;
     }
     
-    public abstract void onCreate();
+    //To be overwritten
+    public void onCreate() {
+        
+    };
 }
